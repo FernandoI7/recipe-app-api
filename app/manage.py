@@ -2,7 +2,7 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-
+from django.conf import settings
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
@@ -14,6 +14,12 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+
+    if settings.DEBUG:
+        if os.environ.get('RUN_MAIN') == 'true':
+            import ptvsd
+            ptvsd.enable_attach(address = ('0.0.0.0', 5678))
+
     execute_from_command_line(sys.argv)
 
 
