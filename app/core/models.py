@@ -50,3 +50,15 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Ingredient(models.Model):
+    """Ingrediente da receita"""
+    name = models.CharField(max_length=120)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.DO_NOTHING
+    )
+
+    def __str__(self):
+        return self.name
