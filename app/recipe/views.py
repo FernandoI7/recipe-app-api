@@ -7,37 +7,29 @@ from core.models import Tag, Ingredient
 from recipe import serializers
 
 
-class TagViewSet(viewsets.GenericViewSet,
-                 mixins.ListModelMixin,
-                 mixins.CreateModelMixin):
-    """Gerencia as tags no banco de dados"""
+class BaseRecipeAttrViewSet(viewsets.GenericViewSet,
+                            mixins.ListModelMixin,
+                            mixins.CreateModelMixin):
+    """ViewSet Base"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        """Retorna os objetos relacionados ao usuário logado"""
+        return self.queryset.filter(user=self.request.user).order_by('name')
+
+    def perform_create(self, serializer):
+        """Cria um novo objeto"""
+        serializer.save(user=self.request.user)
+
+
+class TagViewSet(BaseRecipeAttrViewSet):
+    """Gerencia as tags no banco de dados"""
     queryset = Tag.objects.all()
     serializer_class = serializers.TagSerializer
 
-    def get_queryset(self):
-        """Retorna os objetos relacionados ao usuário logado"""
-        return self.queryset.filter(user=self.request.user).order_by('name')
 
-    def perform_create(self, serializer):
-        """Cria uma nova tag"""
-        serializer.save(user=self.request.user)
-
-
-class IngredientViewSet(viewsets.GenericViewSet,
-                        mixins.ListModelMixin,
-                        mixins.CreateModelMixin):
+class IngredientViewSet(BaseRecipeAttrViewSet):
     """Gerencia os ingredientes no banco de dados"""
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
     queryset = Ingredient.objects.all()
     serializer_class = serializers.IngredientSerializer
-
-    def get_queryset(self):
-        """Retorna os objetos relacionados ao usuário logado"""
-        return self.queryset.filter(user=self.request.user).order_by('name')
-
-    def perform_create(self, serializer):
-        """Cria um novo ingrediente"""
-        serializer.save(user=self.request.user)
